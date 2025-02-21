@@ -6,6 +6,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
+ * 交易对
  * @title  交易对
  * @notice 创建交易对
  */
@@ -29,10 +30,16 @@ contract UniswapV1Exchange is ReentrancyGuard {
 
     // 初始化交易对
     constructor(address _token) {
+        require(_token != address(0), "invalid token address");
+        /**
+         * 由于每个Exchange合约只允许使用一种代币进行交换，
+         * 因此需要将代币合约地址和Exchange合约地址绑定。
+         */
         token = _token;
     }
 
     /**
+     * 足够充分的流动性才能使交易成为可能
      * 添加流动性（需同时存入 ETH 和 ERC20 代币）
      * msg.value是携带的Ether数量，maxToken是ERC20 Token数量
      * @param minLiquidity 最小流动性
@@ -42,6 +49,9 @@ contract UniswapV1Exchange is ReentrancyGuard {
     function addLiquidity(uint256 minLiquidity, uint256 maxTokens, uint256 deadline)
         external
         payable
+        /**
+         * 将发送调用者携带的Ether添加到合约中
+         */
         nonReentrant
         returns (uint256 liquidity)
     {
@@ -157,5 +167,10 @@ contract UniswapV1Exchange is ReentrancyGuard {
     function _burn(address from, uint256 value) internal {
         balanceOf[from] -= value;
         totalSupply -= value;
+    }
+
+    //返回Exchange合约代币余额
+    function getReserve() public view returns (uint256) {
+        return IERC20(token).balanceOf(address(this));
     }
 }
