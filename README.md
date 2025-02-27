@@ -2,7 +2,6 @@
 
 1、该代码用 solidity 实现 uniswap v1  
 2、部署在本地 anvil 环境
-3、制作了 html 代码使用 ether.js 与合约交互
 
 # Uniswap v1 介绍
 

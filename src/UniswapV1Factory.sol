@@ -10,7 +10,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
  */
 contract UniswapV1Factory is ReentrancyGuard {
     // 存储所有已部署的交易对合约:  Token => exchange token
-    mapping(address => address) public getExchange;
+    mapping(address => address) public tokenToExchange;
     address[] public allExchanges;
 
     event ExchangeCreated(address indexed token, address indexed exchange);
@@ -18,12 +18,12 @@ contract UniswapV1Factory is ReentrancyGuard {
     // 部署新的交易对合约（ERC20/ETH）
     function createExchange(address token) external returns (address exchange) {
         require(token != address(0), "Invalid token address");
-        require(getExchange[token] == address(0), "Exchange already exists");
+        require(tokenToExchange[token] == address(0), "Exchange already exists");
 
         exchange = address(new UniswapV1Exchange(token)); // 使用token创建交易对
 
         // 存储交易对信息
-        getExchange[token] = exchange;
+        tokenToExchange[token] = exchange;
         allExchanges.push(exchange);
 
         // 记录日志
@@ -31,6 +31,11 @@ contract UniswapV1Factory is ReentrancyGuard {
 
         // 返回交易对
         return exchange;
+    }
+
+    // 获取交易对
+    function getExchange(address _tokenAddress) public view returns (address) {
+        return tokenToExchange[_tokenAddress];
     }
 
     // 获取所有已部署的交易对数量
